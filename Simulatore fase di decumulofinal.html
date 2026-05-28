@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulatore di Decumulo Previdenziale e Wealth Payout</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --secondary: #2c5282;
+            --accent: #2b6cb0;
+            --background: #f7fafc;
+            --text: #2d3748;
+            --card-bg: #ffffff;
+            --alert: #e53e3e;
+            --safe: #38a169;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .pillar-card {
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8fafc;
+            border-top: 6px solid #cbd5e1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .p1 { border-top-color: #3182ce; }
+        .p2 { border-top-color: #38a169; }
+        .p3 { border-top-color: #805ad5; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--secondary);
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .dashboard {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .dash-card {
+            flex: 1;
+            min-width: 280px;
+            background: var(--primary);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .dash-card.highlight {
+            background: linear-gradient(135deg, #2c5282, #1a365d);
+        }
+
+        .big-number {
+            font-size: 38px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .slider-box {
+            background: #edf2f7;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 12px 0;
+            -webkit-appearance: none;
+            background: #cbd5e1;
+            height: 10px;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .analysis-text {
+            background-color: #fffaf0;
+            border-left: 4px solid #dd6b20;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .chart-wrapper {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .asset-bar {
+            display: flex;
+            height: 30px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .bar-segment {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>Simulatore Strategico di Decumulo Previdenziale</h1>
+        <p>Ottimizzazione del payout patrimoniale, della sostenibilità della rendita e dell'efficienza fiscale in linea con il nuovo quadro normativo di riforma.</p>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h2>1. Consistenza Patrimoniale al Pensionamento</h2>
+            
+            <div class="form-group">
+                <label for="txtCapitaleAssicurativo">Capitale Assicurativo (Polizze Ramo I / S.G.):</label>
+                <input type="number" id="txtCapitaleAssicurativo" class="input-control" value="150000" onchange="calcolaDecumulo()">
+            </div>
+
+            <div class="form-group">
+                <label for="txtCapitaleFondo">Posizione Accumulata Fondo Pensione (PIP/FPA):</label>
+                <input type="number" id="txtCapitaleFondo" class="input-control" value="250000" onchange="calcolaDecumulo()">
+            </div>
+
+            <div class="form-group">
+                <label for="txtCapitaleBenchmark">Portafoglio Finanziario di Supporto (Benchmark ETF):</label>
+                <input type="number" id="txtCapitaleBenchmark" class="input-control" value="200000" onchange="calcolaDecumulo()">
+            </div>
+
+            <div class="form-group">
+                <label for="txtEtaPensionamento">Età di Inizio Decumulo:</label>
+                <input type="number" id="txtEtaPensionamento" class="input-control" value="67" min="60" max="75" onchange="calcolaDecumulo()">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Opzioni di Erogazione e Integrazione</h2>
+            
+            <div class="form-group">
+                <label for="selStrategiaFondo">Opzione Destinazione Fondo Pensione:</label>
+                <select id="selStrategiaFondo" class="input-control" onchange="calcolaDecumulo()">
+                    <option value="rendita100">100% Rendita Vitalizia Immediata</option>
+                    <option value="capitale60" selected>60% Capitale Cash + 40% Rendita Vitalizia (Nuova Riforma)</option>
+                    <option value="rita">RITA (Rendita Temporanea Anticipata / Decumulo Fiscale)</option>
+                </select>
+            </div>
+
+            <div class="slider-box">
+                <label>Integrazione Mensile Desiderata dal Portafoglio Finanziario:</label>
+                <p><strong id="lblTargetMensile" style="color:var(--secondary); font-size:22px;">€ 1.500</strong> / mese netti</p>
+                <input type="range" id="sliderPrelievo" min="500" max="5000" step="1000" value="1500" oninput="calcolaDecumulo()">
+                <div class="slider-labels">
+                    <span>€ 500</span>
+                    <span>€ 2.750</span>
+                    <span>€ 5.000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="dash-card highlight">
+            <div style="text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Rendita Annua Lorda da Fondo Pensione</div>
+            <div class="big-number" id="lblRenditaFondo">€ 0</div>
+            <span id="lblTassazioneFondo">Aliquota di decumulo agevolata: 9% - 15%</span>
+        </div>
+        <div class="dash-card" style="background: #2d3748;">
+            <div style="text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Sostenibilità Portafoglio Finanziario</div>
+            <div class="big-number" id="lblDurataPatrimonio">0 Anni</div>
+            <span id="lblStatoSostenibilita" style="color: var(--safe); font-weight: bold;">Copertura Garantita</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>3. Stato dei Comparti Durante il Decumulo (Evoluzione Rigorosa)</h2>
+        <div class="grid-4">
+            <div class="pillar-card p1">
+                <span class="badge" style="background:#cbd5e1;">Ramo I Vitalizio</span>
+                <div class="metric-label">Capitale Conversione</div>
+                <div class="metric-val" id="lblFinAssicurativo">€ 0</div>
+                <div class="metric-label">Rendimento Tecnico</div>
+                <div class="metric-val" style="color: var(--safe);">2.0% garantito</div>
+            </div>
+            <div class="pillar-card p2">
+                <span class="badge" style="background:#c6f6d5; color:#22543d;">Fondo Complementare</span>
+                <div class="metric-label">Liquidazione Capitale Cash (60%)</div>
+                <div class="metric-val" id="lblCashFondo">€ 0</div>
+                <div class="metric-label">Imposta Sostitutiva Agevolata</div>
+                <div class="metric-val" id="lblTassaFondoEffettiva" style="color: var(--alert);">€ 0</div>
+            </div>
+            <div class="pillar-card p3">
+                <span class="badge" style="background:#e9d8fd; color:#553c9a;">Finanziario Guidato</span>
+                <div class="metric-label">Prelievo Annuo Complessivo</div>
+                <div class="metric-val" id="lblPrelievoAnnuoFin">€ 0</div>
+                <div class="metric-label">Rendimento Atteso in Decumulo</div>
+                <div class="metric-val" style="color: var(--safe);">4.0% (De-risking)</div>
+            </div>
+        </div>
+        <div class="analysis-text" id="lblAnalisiStrategia"></div>
+    </div>
+
+    <div class="card">
+        <h2>4. Asset Allocation Ottimizzata per la Fase di Payout</h2>
+        <p>Modulazione del portafoglio per contrastare il <i>Sequence of Returns Risk</i> (Rischio di sequenza dei rendimenti negativi all'inizio del pensionamento):</p>
+        
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <h3>Comparto Previdenziale in Liquidazione (Linea Consolidamento)</h3>
+                <div class="asset-bar">
+                    <div class="bar-segment" style="width: 80%; background-color: #4a5568;">80%</div>
+                    <div class="bar-segment" style="width: 20%; background-color: #4c51bf;">20%</div>
+                </div>
+                <div style="display:flex; gap:15px; font-size:12px;">
+                    <div><span style="display:inline-block; width:10px; height:10px; background:#4a5568; margin-right:5px;"></span>Monetario / Obbligazioni Breve Termine</div>
+                    <div><span style="display:inline-block; width:10px; height:10px; background:#4c51bf; margin-right:5px;"></span>Corporate Bond Short Term</div>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <h3>Portafoglio di Supporto Finanziario (Strategia Decumulo 4.0%)</h3>
+                <div class="asset-bar">
+                    <div class="bar-segment" style="width: 40%; background-color: #2b6cb0;">40%</div>
+                    <div class="bar-segment" style="width: 40%; background-color: #4a5568;">40%</div>
+                    <div class="bar-segment" style="width: 20%; background-color: #ecc94b;">20%</div>
+                </div>
+                <div style="display:flex; gap:15px; font-size:12px; flex-wrap:wrap;">
+                    <div><span style="display:inline-block; width:10px; height:10px; background:#2b6cb0; margin-right:5px;"></span>Azionario Globale High Dividend</div>
+                    <div><span style="display:inline-block; width:10px; height:10px; background:#4a5568; margin-right:5px;"></span>Obbligazioni Inflation-Linked</div>
+                    <div><span style="display:inline-block; width:10px; height:10px; background:#ecc94b; margin-right:5px;"></span>Strumenti a Cedola / Opzioni</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calcolaDecumulo() {
+        // Acquisizione Input
+        const capAssicurativo = parseFloat(document.getElementById('txtCapitaleAssicurativo').value) || 0;
+        const capFondo = parseFloat(document.getElementById('txtCapitaleFondo').value) || 0;
+        const capBenchmark = parseFloat(document.getElementById('txtCapitaleBenchmark').value) || 0;
+        const etaInizio = parseInt(document.getElementById('txtEtaPensionamento').value) || 67;
+        const prelievoMensileTarget = parseInt(document.getElementById('sliderPrelievo').value);
+        const optFondo = document.getElementById('selStrategiaFondo').value;
+
+        document.getElementById('lblTargetMensile').innerText = formatCurrency(prelievoMensileTarget);
+
+        // Coefficiente attuariale indicativo incrementale in base all'età
+        let coefficienteRendita = 0.042 + ((etaInizio - 60) * 0.0015);
+        
+        let capitaleFondoDaConvertire = capFondo;
+        let capitaleFondoCashLiquidato = 0;
+
+        // Modifica legata alla riforma: split 60% Cash e 40% Rendita
+        if (optFondo === "capitale60") {
+            capitaleFondoDaConvertire = capFondo * 0.40;
+            capitaleFondoCashLiquidato = capFondo * 0.60;
+        } else if (optFondo === "rita") {
+            capitaleFondoDaConvertire = 0;
+            capitaleFondoCashLiquidato = capFondo; 
+        }
+
+        // Calcolo Rendita Effettiva sulla quota destinata a conversione (40%)
+        let renditaFondoAnnua = capitaleFondoDaConvertire * coefficienteRendita;
+        document.getElementById('lblRenditaFondo').innerText = formatCurrency(renditaFondoAnnua);
+
+        // Imposta Sostitutiva Agevolata (es: 9% per massima anzianità)
+        let aliquotaFiscaleAgevolata = 0.09;
+        let impostaSostitutivaCapitale = capitaleFondoCashLiquidato * aliquotaFiscaleAgevolata;
+        
+        document.getElementById('lblCashFondo').innerText = formatCurrency(capitaleFondoCashLiquidato);
+        document.getElementById('lblTassaFondoEffettiva').innerText = formatCurrency(impostaSostitutivaCapitale);
+        document.getElementById('lblFinAssicurativo').innerText = formatCurrency(capAssicurativo);
+
+        let prelievoAnnuoRichiesto = prelievoMensileTarget * 12;
+        
+        // Il capitale liquidato cash (60%) confluisce nel portafoglio finanziario aumentando la base di decumulo
+        let saldoFinanziarioCorrente = capBenchmark + (capitaleFondoCashLiquidato - impostaSostitutivaCapitale);
+        let rendimentoDecumuloFin = 0.04; 
+        let anniDurata = 0;
+
+        document.getElementById('lblPrelievoAnnuoFin').innerText = formatCurrency(prelievoAnnuoRichiesto);
+
+        // Proiezione lineare sul portafoglio finanziario aggregato
+        while (saldoFinanziarioCorrente > 0 && anniDurata < 40) {
+            saldoFinanziarioCorrente = (saldoFinanziarioCorrente - prelievoAnnuoRichiesto) * (1 + rendimentoDecumuloFin);
+            if (saldoFinanziarioCorrente >= 0) {
+                anniDurata++;
+            }
+        }
+
+        // Output Sostenibilità
+        const lblDurata = document.getElementById('lblDurataPatrimonio');
+        const lblStato = document.getElementById('lblStatoSostenibilita');
+        
+        if (anniDurata >= 30) {
+            lblDurata.innerText = "30+ Anni";
+            lblDurata.style.color = "white";
+            lblStato.innerText = "Sostenibilità Eccellente (Vitalizia)";
+            lblStato.style.color = "#68d391";
+        } else if (anniDurata < 15) {
+            lblDurata.innerText = `${anniDurata} Anni`;
+            lblDurata.style.color = "#fc8181";
+            lblStato.innerText = "Rischio di Esaurimento Precoce del Patrimonio";
+            lblStato.style.color = "#fc8181";
+        } else {
+            lblDurata.innerText = `${anniDurata} Anni`;
+            lblDurata.style.color = "white";
+            lblStato.innerText = "Sostenibilità Standard (Monitorare Orizzonte)";
+            lblStato.style.color = "#fbd38d";
+        }
+
+        // Testo di Analisi Strategica Aggiornato alla Riforma
+        let analisiTesto = "";
+        if (optFondo === "rita") {
+            analisiTesto = "<strong>Analisi Strategia Decumulo (RITA):</strong> Opzione altamente efficiente sotto il profilo fiscale. Consente l'applicazione dell'aliquota massima del 9% sull'intera posizione erogata in modalità frazionata, fungendo da perfetto 'ponte' verso la pensione di vecchiaia e preservando intatto il portafoglio finanziario azionario.";
+        } else if (optFondo === "capitale60") {
+            analisiTesto = "<strong>Analisi Strategia Decumulo (60% Cash / 40% Rendita):</strong> Opzione aggiornata secondo la nuova riforma. Rispetto al passato, l'estensione al 60% della quota in capitale eleva la flessibilità patrimoniale immediata del pensionato, riducendo l'impegno sulla rendita vitalizia ma incrementando significativamente la massa liquida reinvestibile o utilizzabile per il de-risking finanziario.";
+        } else {
+            analisiTesto = "<strong>Analisi Strategia Decumulo (100% Rendita):</strong> Massima protezione contro il rischio demografico di longevità. L'intero capitale viene convertito in flusso certo, eliminando completamente le oscillazioni di mercato per la quota previdenziale.";
+        }
+
+        document.getElementById('lblAnalisiStrategia').innerHTML = analisiTesto;
+    }
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+    }
+
+    window.onload = function() {
+        calcolaDecumulo();
+    };
+</script>
+
+</body>
+</html>
